@@ -1,6 +1,8 @@
 package com.gdc.graphqlexample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +15,7 @@ import com.apollographql.apollo.cache.http.ApolloHttpCache;
 import com.apollographql.apollo.cache.http.DiskLruHttpCacheStore;
 import com.apollographql.apollo.exception.ApolloException;
 import com.gdc.graphql.FeedResultQuery;
+import com.gdc.graphqlexample.adapter.CharacterAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,11 +29,32 @@ public class MainActivity extends AppCompatActivity {
     private ApolloClient apolloClient;
     private static final String BASE_URL = "https://rickandmortyapi.com/graphql/";
 
+    private RecyclerView recyclerView;
+
+    private CharacterAdapter adapter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        recyclerView = findViewById(R.id.recyclerview);
+
+        adapter = new CharacterAdapter(this);
+
+        initRecyclerView();
+        getData();
+
+    }
+
+    private void initRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void getData() {
         File file = new File(this.getFilesDir(), "Rick");
         long size = 1024 * 1024;
 
@@ -49,17 +73,17 @@ public class MainActivity extends AppCompatActivity {
                 .enqueue(new ApolloCall.Callback<FeedResultQuery.Data>() {
                     @Override
                     public void onResponse(@NotNull Response<FeedResultQuery.Data> response) {
-                        for (int i = 0; i < response.data().characters().results().size(); i++) {
-                            Log.d(TAG, "onResponse: " + response.data().characters().results().get(i).image());
-                        }
+                        FeedResultQuery.Characters data = response.data().characters();
+
+                        adapter.setResult(data.results());
+
                     }
 
                     @Override
                     public void onFailure(@NotNull ApolloException e) {
-
+                        Log.e(TAG, "onFailure: ", e);
                     }
                 });
-
 
     }
 }
