@@ -21,6 +21,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
 
     private Context context;
     private List<FeedResultQuery.Result> resultList = new ArrayList<>();
+    private ClickListener clickListener;
 
     public CharacterAdapter(Context context) {
         this.context = context;
@@ -53,7 +54,11 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
         notifyDataSetChanged();
     }
 
-    class CharacterHolder extends RecyclerView.ViewHolder {
+    public void setClickListener(ClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
+
+    class CharacterHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvName, tvSpecies, tvGender, tvType;
         private ImageView imgPoster;
 
@@ -64,7 +69,17 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.Char
             tvGender = itemView.findViewById(R.id.tv_gender);
             tvType = itemView.findViewById(R.id.tv_type);
             imgPoster = itemView.findViewById(R.id.img_poster);
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View view) {
+            clickListener.onClick(getAdapterPosition());
+        }
+    }
+
+    public interface ClickListener {
+        void onClick(int position);
     }
 
 }

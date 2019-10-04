@@ -6,6 +6,7 @@ query FeedResult {
       gender
       image
       type
+	  status
     }
   }
 }
